@@ -72,8 +72,15 @@
                 <div class="grid grid-cols-2 gap-6">
                     <div>
                         <label class="block text-[10px] font-black text-[#4A3428]/60 uppercase tracking-widest ml-1 mb-2">Ukuran</label>
-                        <input type="text" name="ukuran" value="{{ old('ukuran') }}" 
-                               class="w-full bg-[#F8F5F2] border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-[#D9B382] transition-all text-[#4A3428] font-bold shadow-inner">
+                        <select name="ukuran" required
+                                class="w-full bg-[#F8F5F2] border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-[#D9B382] transition-all text-[#4A3428] font-bold shadow-inner outline-none appearance-none">
+                            <option value="" disabled {{ old('ukuran') ? '' : 'selected' }}>Pilih Ukuran</option>
+                            <option value="S" {{ old('ukuran') == 'S' ? 'selected' : '' }}>S</option>
+                            <option value="M" {{ old('ukuran') == 'M' ? 'selected' : '' }}>M</option>
+                            <option value="L" {{ old('ukuran') == 'L' ? 'selected' : '' }}>L</option>
+                            <option value="XL" {{ old('ukuran') == 'XL' ? 'selected' : '' }}>XL</option>
+                            <option value="XXL" {{ old('ukuran') == 'XXL' ? 'selected' : '' }}>XXL</option>
+                        </select>
                     </div>
 
                     <div>
