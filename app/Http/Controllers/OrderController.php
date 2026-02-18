@@ -7,79 +7,80 @@ use Illuminate\Support\Facades\DB;
 use Spatie\LaravelPdf\Facades\Pdf;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
-
-  public function index() {
     
-    $customerId = Auth::guard('customer')->id();
-
-    $orders = DB::table('orders')
-                ->join('products', 'orders.product_id', '=', 'products.id')
-                ->select(
-                    'orders.*',
-                    'products.nama_produk',
-                    'products.gambar',
-                    'products.harga as harga_satuan',
-                    DB::raw('orders.jumlah * products.harga as total_harga')
-                )
-                ->where('orders.customer_id', $customerId) 
-                ->get(); 
-
-    return view('order.index', compact('orders'));
-}
-
-
-
-      public function create($id) {
-        $product = DB::table('products')->where('id', $id)->first();
-
-        return view('order.create', compact('product'));
-    }
-
-   public function store(Request $request) {
-    DB::table('orders')->insert([
-        'customer_id'  => Auth::guard('customer')->id(), 
-        'product_id'   => $request->product_id,
-        'nama_pemesan' => $request->nama_pemesan,
-        'no_hp'        => $request->no_hp,
-        'alamat'       => $request->alamat,
-        'ukuran'       => $request->ukuran,
-        'jumlah'       => $request->jumlah,
-        'catatan'      => $request->catatan,
-        'status'       => 'pending',
-        'metode_pembayaran' => 'cod',
-        'created_at'   => now(),
-        'updated_at'   => now(),
-    ]);
-
-    return back()->with('success', 'Pesanan berhasil dibuat!');
-}   
-
-
-    public function receipt($id)
+    public function index()
     {
-        $order = DB::table('orders')
-            ->join('products', 'orders.product_id', '=', 'products.id')
-            ->select(
-                'orders.*',
-                'products.nama_produk',
-                'products.harga as harga_satuan',
-                DB::raw('orders.jumlah * products.harga as total_harga')
-            )
-            ->where('orders.id', $id)->first();
+        $customerId = Auth::guard('customer')->id();
 
-        if (!$order) {
-            abort(404);
+        if (!$customerId) {
+            return redirect()->route('customer.login');
         }
 
-        return Pdf::view('admin.orders.receipt', compact('order'))
-            ->format('A6')
-            ->name('receipt-order-'.$order->id.'.pdf');
+       
+        $orders = DB::table('orders')
+            ->select('orders.*')
+            ->where('orders.customer_id', $customerId)
+            ->whereIn('orders.status', ['pending', 'diproses'])
+            ->orderByDesc('orders.created_at')
+            ->get();
+
+      
+        $groupedOrders = $orders->map(function($order) {
+            $items = DB::table('order_items')
+                ->join('products', 'order_items.product_id', '=', 'products.id')
+                ->select(
+                    'order_items.*',
+                    'products.nama_produk',
+                    'products.gambar',
+                    DB::raw('order_items.qty * order_items.harga as total_harga')
+                )
+                ->where('order_items.order_id', $order->id)
+                ->get();
+
+            $order->items = $items;
+            $order->total_items = $items->sum('qty');
+            $order->grand_total = $items->sum('total_harga');
+            
+            return $order;
+        });
+
+        return view('order.index', compact('groupedOrders'));
     }
 
+    
+    public function receipt($id)
+    {
+        $customerId = Auth::guard('customer')->id();
+        $order = DB::table('orders')
+            ->where('id', $id)
+            ->where('customer_id', $customerId)
+            ->first();
 
+        if (!$order) {
+            abort(404, 'Order tidak ditemukan');
+        }
 
+        
+        $orderItems = DB::table('order_items')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->select(
+                'order_items.*',
+                'products.nama_produk',
+                'products.gambar',
+                DB::raw('order_items.qty * order_items.harga as total_harga')
+            )
+            ->where('order_items.order_id', $id)
+            ->get();
+
+        $grandTotal = $orderItems->sum('total_harga');
+        $totalItems = $orderItems->sum('qty');
+
+        return Pdf::view('order.receipt', compact('order', 'orderItems', 'grandTotal', 'totalItems'))
+            ->format('A5')
+            ->name('receipt-order-' . $order->id . '.pdf');
+    }
 }

@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin Dashboard') | Luxury System</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo ta.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .sidebar-gradient { background: linear-gradient(180deg, #2D1F18 0%, #4A3428 100%); }
@@ -23,18 +25,16 @@
     </style>
 </head>
 <body class="bg-[#F8F5F2] min-h-screen antialiased">
-
     <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity duration-300"></div>
-
-    <aside id="mainSidebar" class="fixed inset-y-0 left-0 z-50 w-72 md:w-80 sidebar-gradient shadow-[10px_0_40px_rgba(0,0,0,0.1)] 
-        transition-all duration-300 transform -translate-x-full lg:translate-x-0 flex flex-col">
-        
+    <aside id="mainSidebar" class="fixed inset-y-0 left-0 z-50 w-72 md:w-80 sidebar-gradient shadow-[10px_0_40px_rgba(0,0,0,0.1)] transition-all duration-300 transform -translate-x-full lg:translate-x-0 flex flex-col">
         <div class="p-8 border-b border-white/5 relative flex-shrink-0">
             <div class="absolute -right-6 -top-6 w-24 h-24 bg-[#D9B382]/10 rounded-full blur-2xl"></div>
             <div class="flex items-center justify-between relative z-10">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-[#D9B382] flex items-center justify-center shadow-lg transform -rotate-6">
-                        <span class="text-[#4A3428] text-xl md:text-2xl font-black">A</span>
+                   <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl overflow-hidden shadow-lg transform -rotate-6">
+                        <img src="{{ asset('images/logo ta.png') }}" 
+                            alt="Logo Toko Anjay"
+                            class="w-full h-full object-cover">
                     </div>
                     <div>
                         <h1 class="text-lg md:text-xl font-extrabold text-white tracking-tighter uppercase leading-none">Toko <span class="text-[#D9B382]">Anjay</span></h1>
@@ -49,23 +49,115 @@
 
         <nav class="sidebar-nav flex-1 p-6 space-y-2 overflow-y-auto">
             <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] ml-4 mb-4">Menu Utama</p>
-
-            <a href="{{ route('dashboard.index') }}" 
-               class="nav-link group flex items-center px-6 py-4 rounded-2xl text-white/60 transition-all duration-300">
+            <a href="{{ route('dashboard.home') }}" 
+            class="nav-link group flex items-center px-6 py-4 rounded-2xl text-white/60 transition-all duration-300">
                 <svg class="w-5 h-5 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7l9-4 9 4-9 4-9-4z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10l9 4 9-4V7" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7m-9 2v8m4-8v8m5-12l2 2" />
                 </svg>
-                <span class="font-bold tracking-tight">Katalog Produk</span>
+                <span class="font-bold tracking-tight">Dashboard Utama</span>
             </a>
 
-            <a href="{{ route('dashboard.pesanan') }}" 
-               class="nav-link group flex items-center px-6 py-4 rounded-2xl text-white/60 transition-all duration-300">
+
+        <div x-data="{ open: {{ request()->routeIs('dashboard.index') || request()->routeIs('dashboard.kategori*') ? 'true' : 'false' }} }">
+            
+            <button @click="open = !open"
+                class="nav-link group flex items-center justify-between w-full px-6 py-4 rounded-2xl text-white/60 transition-all duration-300">
+                
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 7l9-4 9 4-9 4-9-4z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 7v10l9 4 9-4V7" />
+                    </svg>
+                    <span class="font-bold tracking-tight">Manajemen Produk</span>
+                </div>
+        
+                <svg :class="open ? 'rotate-180' : ''"
+                    class="w-4 h-4 transition-transform duration-300"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+        
+            <div x-show="open" x-collapse class="mt-2 space-y-1 pl-6">
+        
+             
+                <a href="{{ route('dashboard.index') }}"
+                    class="nav-link flex items-center gap-3 px-6 py-3 rounded-xl text-white/50 hover:text-[#D9B382] transition-all">
+                    
+                    <i class="fa-solid fa-box text-xs"></i>
+                    <span class="text-sm font-semibold tracking-tight">Daftar Produk</span>
+                </a>
+        
+            
+                <a href="{{ route('dashboard.kategori.index') }}"
+                    class="nav-link flex items-center gap-3 px-6 py-3 rounded-xl text-white/50 hover:text-[#D9B382] transition-all">
+                    
+                    <i class="fa-solid fa-tags text-xs"></i>
+                    <span class="text-sm font-semibold tracking-tight">Kelola Kategori</span>
+                </a>
+        
+            </div>
+        </div>
+
+
+           
+    <div x-data="{ open: {{ request()->routeIs('dashboard.pesanan*') ? 'true' : 'false' }} }">
+        <button @click="open = !open"
+            class="nav-link group flex items-center justify-between w-full px-6 py-4 rounded-2xl text-white/60 transition-all duration-300">
+            
+            <div class="flex items-center">
                 <svg class="w-5 h-5 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 <span class="font-bold tracking-tight">Data Pesanan</span>
+            </div>
+
+            <svg :class="open ? 'rotate-180' : ''"
+                class="w-4 h-4 transition-transform duration-300"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 9l-7 7-7-7" />
+            </svg>
+        </button>
+
+        <div x-show="open" x-collapse class="mt-2 space-y-1 pl-6">
+            <a href="{{ route('dashboard.pesanan') }}"
+                class="nav-link flex items-center gap-3 px-6 py-3 rounded-xl text-white/50 hover:text-[#D9B382] transition-all">
+                
+                <i class="fa-solid fa-bag-shopping text-xs"></i>
+                <span class="text-sm font-semibold tracking-tight">Pesanan Aktif</span>
             </a>
+
+
+            <a href="{{ route('dashboard.pesanan.riwayat') }}"
+                class="nav-link flex items-center gap-3 px-6 py-3 rounded-xl text-white/50 hover:text-[#D9B382] transition-all">
+                
+                <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                <span class="text-sm font-semibold tracking-tight">Riwayat Pesanan</span>
+            </a>
+
+        </div>
+        </div>
+
+
+            <a href="{{ route('dashboard.review.index') }}" 
+            class="nav-link group flex items-center px-6 py-4 rounded-2xl 
+            {{ request()->routeIs('dashboard.review*') ? 'bg-[#D9B382]/10 text-[#D9B382]' : 'text-white/60' }} 
+            transition-all duration-300">
+                
+                <svg class="w-5 h-5 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4-.8L3 20l1.8-3.6A7.962 7.962 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+
+                <span class="font-bold tracking-tight">Manajemen Review</span>
+            </a>
+
 
             <a href="{{ route('dashboard.member.index') }}" 
                class="nav-link group flex items-center px-6 py-4 rounded-2xl text-white/60 transition-all duration-300">
@@ -156,6 +248,7 @@
         </div>
     </main>
 
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('mainSidebar');
